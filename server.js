@@ -1,67 +1,161 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
 const dotenv = require('dotenv');
+const { v4: uuidv4 } = require('uuid');
 const { initializeDatabase } = require('./database/db');
+const { rateLimiter, adminRateLimiter } = require('./middleware/rateLimiter');
 const scanner = require('./services/vulnerabilityScanner');
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const NODE_ENV = process.env.NODE_ENV || 'development';
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',')
+    : ['http://localhost:3000', 'http://localhost:3001'];
 
-// Routes
+app.set('trust proxy', 1);
+
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'"],
+            styleSrc: ["'self'", "'unsafe-inline'"],
+            imgSrc: ["'self'", "data:", "https:"],
+            connectSrc: ["'self'", "https:"],
+            fontSrc: ["'self'", "data:"],
+            objectSrc: ["'none'"],
+            mediaSrc: ["'self'"],
+            frameSrc: ["'none'"],
+            frameAncestors: ["'none'"],
+            formAction: ["'self'"],
+            baseUri: ["'self'"],
+            upgradeInsecureRequests: NODE_ENV === 'production' ? [] : null
+        }
+    },
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: "same-origin" },
+    dnsPrefetchControl: { allow: false },
+    frameguard: { action: 'deny' },
+    hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true
+    },
+    ieNoOpen: true,
+    noSniff: true,
+    originAgentCluster: true,
+    permittedCrossDomainPolicies: { permittedPolicies: "none" },
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+    xssFilter: true
+}));
+
+app.use(cors({
+    origin: (origin, callback) => {
+        if (NODE_ENV === 'development' || !origin) {
+            return callback(null, true);
+        }
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    exposedHeaders: ['X-Request-Id'],
+    maxAge: 86400
+}));
+
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+app.use(rateLimiter);
+
+app.use((req, res, next) => {
+    req.id = uuidv4();
+    res.setHeader('X-Request-Id', req.id);
+    next();
+});
+
 const scanRoutes = require('./routes/scanRoutes');
 const dorkRoutes = require('./routes/dorkRoutes');
 const aiRoutes = require('./routes/aiRoutes');
+const authRoutes = require('./routes/authRoutes');
+const mobileRoutes = require('./routes/mobileRoutes');
+const subscriptionRoutes = require('./routes/subscriptionRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 app.use('/api/scans', scanRoutes);
 app.use('/api/dorks', dorkRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/mobile', mobileRoutes);
+app.use('/api/subscriptions', subscriptionRoutes);
+app.use('/api/admin', adminRateLimiter, adminRoutes);
 
-// Health check endpoint
 app.get('/api/health', (req, res) => {
     res.json({
         status: 'healthy',
         timestamp: new Date().toISOString(),
-        service: 'Web Vulnerability Scanner API'
+        service: 'VulnScan Pro - Web & Mobile Security Scanner',
+        version: process.env.APP_VERSION || '1.0.0'
     });
 });
 
-// Error handling middleware
 app.use((err, req, res, next) => {
-    console.error('Error:', err);
-    res.status(500).json({
-        error: 'Internal server error',
-        message: err.message
+    const errorId = req.id;
+    console.error(`[${errorId}] Error:`, err.message);
+
+    if (err.message === 'Not allowed by CORS') {
+        return res.status(403).json({
+            error: 'CORS policy violation'
+        });
+    }
+
+    if (NODE_ENV === 'production') {
+        return res.status(err.status || 500).json({
+            error: 'An unexpected error occurred',
+            reference: errorId
+        });
+    }
+
+    res.status(err.status || 500).json({
+        error: err.message || 'Internal server error',
+        reference: errorId,
+        path: req.path
     });
 });
 
-// 404 handler
 app.use((req, res) => {
-    res.status(404).json({ error: 'Endpoint not found' });
+    res.status(404).json({
+        error: 'Endpoint not found',
+        path: req.path
+    });
 });
 
-// Initialize database and start server
 const startServer = async () => {
     try {
+        if (!process.env.JWT_SECRET) {
+            throw new Error('JWT_SECRET environment variable is required. Add it to your .env file.');
+        }
+
         await initializeDatabase();
         await scanner.initializeDorkPatterns();
 
-        app.listen(PORT, () => {
-            console.log(`
+        console.log(`
 ========================================
-  Web Vulnerability Scanner API
-  Server running on port ${PORT}
+  VulnScan Pro - Security Scanner API
+  Environment: ${NODE_ENV}
+  Port: ${PORT}
+  CORS Origins: ${allowedOrigins.join(', ')}
 ========================================
-      `);
-        });
+        `);
     } catch (error) {
-        console.error('Failed to start server:', error);
+        console.error('Failed to start server:', error.message);
         process.exit(1);
     }
 };

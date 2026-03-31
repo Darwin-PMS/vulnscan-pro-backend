@@ -35,7 +35,7 @@ router.get('/ghdb/:ghdbId', async (req, res) => {
     try {
         const { ghdbId } = req.params;
         const [patterns] = await pool.query(
-            'SELECT * FROM dork_patterns WHERE ghdb_id = ?',
+            'SELECT * FROM   WHERE ghdb_id = ?',
             [ghdbId]
         );
 

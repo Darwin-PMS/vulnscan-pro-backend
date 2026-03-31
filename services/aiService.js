@@ -7,6 +7,10 @@ Your expertise includes:
 - OWASP Top 10 vulnerabilities and mitigations
 - Network security and penetration testing
 - Web application security
+- React.js and Node.js application security
+- Express.js and MongoDB security
+- GraphQL API security
+- JWT and authentication security
 - Mobile application security
 - Cloud security
 - Incident response and forensics
@@ -16,12 +20,12 @@ Your expertise includes:
 - Security architecture and hardening
 
 Guidelines:
-1. Always prioritize safety and legal compliance
-2. Explain vulnerabilities clearly with practical examples
-3. Provide actionable remediation steps
-4. Reference industry standards (OWASP, NIST, ISO 27001)
-5. Suggest relevant tools and commands when appropriate
-6. If unsure, acknowledge limitations and suggest consulting security professionals
+ 1. Always prioritize safety and legal compliance
+ 2. Explain vulnerabilities clearly with practical examples
+ 3. Provide actionable remediation steps
+ 4. Reference industry standards (OWASP, NIST, ISO 27001)
+ 5. Suggest relevant tools and commands when appropriate
+ 6. If unsure, acknowledge limitations and suggest consulting security professionals
 
 Current date: ${new Date().toISOString().split('T')[0]}`;
 
@@ -343,6 +347,192 @@ nmap --script smb-* target.com
             };
         }
 
+        // React/Node.js specific response
+        if (lowerMessage.includes('react') || lowerMessage.includes('reactjs') || lowerMessage.includes('react.js')) {
+            return {
+                success: true,
+                response: `**React.js Security Best Practices**
+
+**Common React Vulnerabilities:**
+
+1. **XSS via dangerouslySetInnerHTML**
+   - Never use dangerouslySetInnerHTML with user input
+   - Use DOMPurify to sanitize HTML
+\`\`\`javascript
+import DOMPurify from 'dompurify';
+const safeHTML = DOMPurify.sanitize(userInput);
+\`\`\`
+
+2. **React DevTools in Production**
+   - Ensure NODE_ENV=production in production builds
+   - This disables development-only features
+\`\`\`javascript
+// Webpack config
+new webpack.DefinePlugin({
+  'process.env.NODE_ENV': JSON.stringify('production')
+});
+\`\`\`
+
+3. **Source Maps in Production**
+   - Disable GENERATE_SOURCEMAPS in production
+\`\`\`bash
+GENERATE_SOURCEMAPS=false npm run build
+\`\`\`
+
+4. **JWT Storage**
+   - Never store JWT in localStorage (XSS vulnerable)
+   - Use httpOnly cookies instead
+\`\`\`javascript
+// Secure token storage
+document.cookie = 'token=xxx; HttpOnly; Secure; SameSite=Strict';
+\`\`\`
+
+5. **Environment Variables**
+   - Only prefix public vars with REACT_APP_
+   - Never store secrets client-side
+
+**Tools for React Security:**
+- eslint-plugin-react-security
+- DOMPurify
+- Helmet for security headers`,
+                timestamp: new Date().toISOString(),
+                model: 'mock-mode',
+                provider: 'local',
+                mock: true
+            };
+        }
+
+        if (lowerMessage.includes('node.js') || lowerMessage.includes('nodejs') || lowerMessage.includes('express')) {
+            return {
+                success: true,
+                response: `**Node.js & Express Security Best Practices**
+
+**Critical Node.js Vulnerabilities:**
+
+1. **Command Injection**
+\`\`\`javascript
+// UNSAFE
+const { exec } = require('child_process');
+exec(\`ls \${userInput}\`);
+
+// SAFE
+const { execFile } = require('child_process');
+execFile('ls', [userInput], (err, data) => {});
+\`\`\`
+
+2. **Prototype Pollution**
+\`\`\`javascript
+// Use safe-eval or deep clone libraries
+const safeMerge = require('deepmerge');
+// Never merge user input directly with Object.assign
+\`\`\`
+
+3. **NoSQL Injection (MongoDB)**
+\`\`\`javascript
+// UNSAFE
+User.find({ username: req.body.username })
+
+// SAFE - Validate input with Joi/Mongoose
+const schema = Joi.object({ username: Joi.string().alphanum().required() });
+\`\`\`
+
+4. **Express Security Headers**
+\`\`\`javascript
+const helmet = require('helmet');
+app.use(helmet());
+\`\`\`
+
+5. **Rate Limiting**
+\`\`\`javascript
+const rateLimit = require('express-rate-limit');
+app.use(rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100
+}));
+\`\`\`
+
+6. **JWT Security**
+\`\`\`javascript
+// Always specify algorithm, verify before use
+const decoded = jwt.verify(token, process.env.JWT_SECRET, {
+  algorithms: ['HS256']
+});
+\`\`\`
+
+**Essential Packages:**
+- helmet (security headers)
+- express-rate-limit (DoS protection)
+- cors (CORS configuration)
+- bcrypt (password hashing)
+- joi (validation)`,
+                timestamp: new Date().toISOString(),
+                model: 'mock-mode',
+                provider: 'local',
+                mock: true
+            };
+        }
+
+        if (lowerMessage.includes('graphql')) {
+            return {
+                success: true,
+                response: `**GraphQL Security Best Practices**
+
+**Common GraphQL Vulnerabilities:**
+
+1. **Introspection in Production**
+\`\`\`javascript
+// Disable introspection in production
+const { ApolloServer } = require('apollo-server-express');
+const server = new ApolloServer({
+  schema,
+  introspection: process.env.NODE_ENV === 'production' ? false : true
+});
+\`\`\`
+
+2. **Query Depth Limiting**
+\`\`\`javascript
+const { createComplexityLimitRule } = require('graphql-query-complexity');
+const rule = createComplexityLimitRule(1000);
+\`\`\`
+
+3. **Batch Query Attack**
+\`\`\`javascript
+// Limit maximum batch size
+const maxBatchSize = 10;
+\`\`\`
+
+4. **Field Suggestions Leakage**
+\`\`\`javascript
+// Disable field suggestions in errors
+formatError: (error) => {
+  delete error.extensions.exception;
+  return error;
+}
+\`\`\`
+
+5. **Authorization**
+\`\`\`javascript
+const resolvers = {
+  Query: {
+    user: (_, { id }, { user }) => {
+      if (!user || user.id !== id) throw new ForbiddenError();
+      return getUser(id);
+    }
+  }
+};
+\`\`\`
+
+**Security Tools:**
+- graphql-query-complexity
+- graphql-rate-limit
+- eslint-plugin-graphql`,
+                timestamp: new Date().toISOString(),
+                model: 'mock-mode',
+                provider: 'local',
+                mock: true
+            };
+        }
+
         // Default response
         return {
             success: true,
@@ -351,6 +541,9 @@ nmap --script smb-* target.com
 **Topics I Cover:**
 - 🛡️ Vulnerability explanations (OWASP Top 10)
 - 🔧 Security tools and commands (Nmap, Burp Suite, etc.)
+- ⚛️ React.js security best practices
+- 🟢 Node.js/Express security
+- 📊 GraphQL API security
 - 📋 Penetration testing methodologies
 - 🛠️ Remediation strategies
 - 📚 CVE analysis
@@ -361,6 +554,8 @@ nmap --script smb-* target.com
 - "How do I use Nmap?"
 - "Explain XSS vulnerabilities"
 - "OWASP Top 10 overview"
+- "React security best practices"
+- "Node.js security tips"
 - "How to prevent [vulnerability]?"
 
 *Note: I'm currently running in demo mode. To use Groq's ultra-fast LLM inference (up to 800+ tokens/second), configure your GROQ_API_KEY in the backend .env file.*
