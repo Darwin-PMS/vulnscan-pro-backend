@@ -88,6 +88,8 @@ const authRoutes = require('./routes/authRoutes');
 const mobileRoutes = require('./routes/mobileRoutes');
 const subscriptionRoutes = require('./routes/subscriptionRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const enterpriseRoutes = require('./routes/enterpriseRoutes');
+const scanModulesRoutes = require('./routes/scanModules');
 
 app.use('/api/scans', scanRoutes);
 app.use('/api/dorks', dorkRoutes);
@@ -96,6 +98,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/mobile', mobileRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/admin', adminRateLimiter, adminRoutes);
+app.use('/api/enterprise', enterpriseRoutes);
+app.use('/api/scan-modules', scanModulesRoutes);
 
 app.get('/api/health', (req, res) => {
     res.json({
