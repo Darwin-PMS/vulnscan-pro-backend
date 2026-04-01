@@ -230,14 +230,14 @@ const scanController = {
         }
     },
 
-    // Delete scan
+    // Delete scan (soft delete - preserve for audit)
     async deleteScan(req, res) {
         try {
             const { scanId } = req.params;
 
-            await pool.query('DELETE FROM scans WHERE scan_id = ?', [scanId]);
+            await pool.query('UPDATE scans SET status = ?, deleted_at = NOW() WHERE scan_id = ?', ['deleted', scanId]);
 
-            res.json({ success: true, message: 'Scan deleted successfully' });
+            res.json({ success: true, message: 'Scan soft deleted - preserved for audit trail' });
         } catch (error) {
             console.error('Error deleting scan:', error);
             res.status(500).json({ error: 'Failed to delete scan' });

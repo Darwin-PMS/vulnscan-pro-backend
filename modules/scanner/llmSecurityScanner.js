@@ -4,7 +4,7 @@
  */
 
 const axios = require('axios');
-const { sanitizeInput } = require('../utils/security');
+const { sanitizeInput } = require('../../utils/security');
 
 class LLMSecurityScanner {
     constructor() {

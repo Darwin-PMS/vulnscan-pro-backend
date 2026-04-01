@@ -199,7 +199,7 @@ class MFAModule {
             }
         }
 
-        await query('DELETE FROM mfa_configurations WHERE user_id = ?', [userId]);
+        await query('UPDATE mfa_configurations SET is_active = FALSE, disabled_at = NOW() WHERE user_id = ?', [userId]);
 
         return { success: true };
     }

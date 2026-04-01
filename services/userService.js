@@ -288,8 +288,8 @@ const userService = {
             throw new Error('Cannot delete admin accounts');
         }
 
-        await query('DELETE FROM users WHERE id = ?', [userIdNum]);
-        return true;
+        await query('UPDATE users SET is_active = FALSE, deleted_at = NOW() WHERE id = ?', [userIdNum]);
+        return { deleted: true, message: 'User soft deleted - data preserved for audit' };
     }
 };
 

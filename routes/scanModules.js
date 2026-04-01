@@ -410,6 +410,118 @@ router.post('/modules/container/scan', authenticateToken, async (req, res) => {
     }
 });
 
+router.post('/modules/wordpress/scan', authenticateToken, async (req, res) => {
+    try {
+        const { url } = req.body;
+
+        if (!url) {
+            return res.status(400).json({ error: 'URL is required' });
+        }
+
+        if (!validateScanURL(url)) {
+            return res.status(400).json({ error: 'Invalid URL format' });
+        }
+
+        if (checkSSRF(url)) {
+            return res.status(400).json({ error: 'URL blocked by SSRF protection' });
+        }
+
+        const { WordPressScanner } = require('../modules/scanner');
+        const scanner = new WordPressScanner();
+        const scanId = `wordpress_${Date.now()}`;
+
+        const results = await scanner.scanTarget(url, scanId);
+        res.json(results);
+
+    } catch (error) {
+        console.error('WordPress scan error:', error);
+        res.status(500).json({ error: 'Failed to run WordPress scan' });
+    }
+});
+
+router.get('/modules/wordpress/categories', authenticateToken, (req, res) => {
+    try {
+        const { WordPressScanner } = require('../modules/scanner');
+        const scanner = new WordPressScanner();
+        res.json(scanner.getSummary());
+    } catch (error) {
+        console.error('Get WordPress categories error:', error);
+        res.status(500).json({ error: 'Failed to get WordPress categories' });
+    }
+});
+
+router.post('/modules/framework/scan', authenticateToken, async (req, res) => {
+    try {
+        const { url, framework } = req.body;
+
+        if (!url) {
+            return res.status(400).json({ error: 'URL is required' });
+        }
+
+        if (!validateScanURL(url)) {
+            return res.status(400).json({ error: 'Invalid URL format' });
+        }
+
+        if (checkSSRF(url)) {
+            return res.status(400).json({ error: 'URL blocked by SSRF protection' });
+        }
+
+        const { FrameworkScanner } = require('../modules/scanner');
+        const scanner = new FrameworkScanner();
+        const scanId = `framework_${Date.now()}`;
+
+        const results = await scanner.scanTarget(url, scanId, { framework });
+        res.json(results);
+
+    } catch (error) {
+        console.error('Framework scan error:', error);
+        res.status(500).json({ error: 'Failed to run Framework scan' });
+    }
+});
+
+router.get('/modules/framework/categories', authenticateToken, (req, res) => {
+    try {
+        const { FrameworkScanner } = require('../modules/scanner');
+        const scanner = new FrameworkScanner();
+        res.json(scanner.getSummary());
+    } catch (error) {
+        console.error('Get Framework categories error:', error);
+        res.status(500).json({ error: 'Failed to get Framework categories' });
+    }
+});
+
+router.post('/modules/domain/scan', authenticateToken, async (req, res) => {
+    try {
+        const { url } = req.body;
+
+        if (!url) {
+            return res.status(400).json({ error: 'URL is required' });
+        }
+
+        const { DomainIntelligenceScanner } = require('../modules/scanner');
+        const scanner = new DomainIntelligenceScanner();
+        const scanId = `domain_${Date.now()}`;
+
+        const results = await scanner.scanTarget(url, scanId);
+        res.json(results);
+
+    } catch (error) {
+        console.error('Domain scan error:', error);
+        res.status(500).json({ error: 'Failed to run Domain scan' });
+    }
+});
+
+router.get('/modules/domain/categories', authenticateToken, (req, res) => {
+    try {
+        const { DomainIntelligenceScanner } = require('../modules/scanner');
+        const scanner = new DomainIntelligenceScanner();
+        res.json(scanner.getSummary());
+    } catch (error) {
+        console.error('Get Domain categories error:', error);
+        res.status(500).json({ error: 'Failed to get Domain categories' });
+    }
+});
+
 router.post('/modules/multi-scan', authenticateToken, async (req, res) => {
     try {
         const { url, modules } = req.body;

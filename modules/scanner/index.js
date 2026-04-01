@@ -11,6 +11,9 @@ const { CICDSecurityScanner } = require('./cicdSecurityScanner');
 const { MobileSecurityScanner } = require('./mobileSecurityScanner');
 const { LLMSecurityScanner } = require('./llmSecurityScanner');
 const { ContainerSecurityScanner } = require('./containerSecurityScanner');
+const { WordPressScanner } = require('./wordpressScanner');
+const { FrameworkScanner } = require('./frameworkScanner');
+const { DomainIntelligenceScanner } = require('./domainScanner');
 
 const scannerInstances = {
     owasp: new OWASPScanner(),
@@ -20,7 +23,10 @@ const scannerInstances = {
     cicd: new CICDSecurityScanner(),
     mobile: new MobileSecurityScanner(),
     llm: new LLMSecurityScanner(),
-    container: new ContainerSecurityScanner()
+    container: new ContainerSecurityScanner(),
+    wordpress: new WordPressScanner(),
+    framework: new FrameworkScanner(),
+    domain: new DomainIntelligenceScanner()
 };
 
 module.exports = {
@@ -32,6 +38,9 @@ module.exports = {
     MobileSecurityScanner,
     LLMSecurityScanner,
     ContainerSecurityScanner,
+    WordPressScanner,
+    FrameworkScanner,
+    DomainIntelligenceScanner,
     scannerInstances,
     
     getAvailableScanners: () => ({
@@ -98,6 +107,30 @@ module.exports = {
             icon: 'container',
             color: '#14b8a6',
             categories: scannerInstances.container.getSummary()
+        },
+        wordpress: {
+            id: 'wordpress',
+            name: 'WordPress & PHP Security',
+            description: 'Security scanner for WordPress and PHP-based applications',
+            icon: 'globe',
+            color: '#21759b',
+            categories: scannerInstances.wordpress.getSummary()
+        },
+        framework: {
+            id: 'framework',
+            name: 'Framework Security',
+            description: 'Laravel, CodeIgniter, ASP.NET, Django, Spring detection and CVE scanning',
+            icon: 'code-2',
+            color: '#7c3aed',
+            categories: scannerInstances.framework.getSummary()
+        },
+        domain: {
+            id: 'domain',
+            name: 'Domain Intelligence',
+            description: 'Comprehensive domain analysis, technology detection, SSL, headers, subdomains',
+            icon: 'globe-2',
+            color: '#0ea5e9',
+            categories: scannerInstances.domain.getSummary()
         }
     }),
     

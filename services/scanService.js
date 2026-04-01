@@ -39,8 +39,8 @@ const scanService = {
     },
 
     async deleteScan(scanId) {
-        await query('DELETE FROM scans WHERE scan_id = ?', [scanId]);
-        return true;
+        await query('UPDATE scans SET status = ?, deleted_at = NOW() WHERE scan_id = ?', ['deleted', scanId]);
+        return { deleted: true, message: 'Scan soft deleted for audit preservation' };
     },
 
     async getScanById(scanId) {

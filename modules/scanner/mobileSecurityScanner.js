@@ -26,7 +26,7 @@ class MobileSecurityScanner {
                     check: async (content) => {
                         if (content) {
                             return /setJavaScriptEnabled\s*\(\s*true\s*\)/.test(content) &&
-                                   !/addJavascriptInterface/.test(content) === false;
+                                !/addJavascriptInterface/.test(content) === false;
                         }
                         return false;
                     }
@@ -39,7 +39,7 @@ class MobileSecurityScanner {
                     check: async (content) => {
                         if (content) {
                             return /android:debuggable\s*=\s*["']true["']/.test(content) ||
-                                   /android:debuggable\s*=\s*"true"/.test(content);
+                                /android:debuggable\s*=\s*"true"/.test(content);
                         }
                         return false;
                     }
@@ -52,7 +52,7 @@ class MobileSecurityScanner {
                     check: async (content) => {
                         if (content) {
                             return /android:exported\s*=\s*["']true["']/.test(content) &&
-                                   !/android:permission/.test(content);
+                                !/android:permission/.test(content);
                         }
                         return false;
                     }
@@ -88,7 +88,7 @@ class MobileSecurityScanner {
                     severity: 'high',
                     check: async (content) => {
                         if (content) {
-                            const weakAlgos = ['MessageDigest.getInstance("MD5"', 'Cipher.getInstance("DES')];
+                            const weakAlgos = ['MessageDigest.getInstance("MD5"', 'Cipher.getInstance("DES")'];
                             return weakAlgos.some(a => content.includes(a));
                         }
                         return false;
@@ -120,7 +120,7 @@ class MobileSecurityScanner {
                     check: async (content) => {
                         if (content) {
                             return /getSharedPreferences\s*\(/.test(content) &&
-                                   !/EncryptedSharedPreferences/.test(content);
+                                !/EncryptedSharedPreferences/.test(content);
                         }
                         return false;
                     }
@@ -156,8 +156,8 @@ class MobileSecurityScanner {
                     severity: 'medium',
                     check: async (content) => {
                         if (content) {
-                            return /<intent-filter>/.test(content) && 
-                                   !/android:scheme/.test(content);
+                            return /<intent-filter>/.test(content) &&
+                                !/android:scheme/.test(content);
                         }
                         return false;
                     }
@@ -209,7 +209,7 @@ class MobileSecurityScanner {
                     check: async (content) => {
                         if (content) {
                             return /NSAllowsArbitraryLoads\s*=\s*YES/.test(content) ||
-                                   /NSAllowsLocalNetworking\s*=\s*YES/.test(content);
+                                /NSAllowsLocalNetworking\s*=\s*YES/.test(content);
                         }
                         return false;
                     }
@@ -238,8 +238,8 @@ class MobileSecurityScanner {
                     severity: 'high',
                     check: async (content) => {
                         if (content) {
-                            return /\.plist/.test(content) && 
-                                   (content.includes('password') || content.includes('token'));
+                            return /\.plist/.test(content) &&
+                                (content.includes('password') || content.includes('token'));
                         }
                         return false;
                     }
@@ -386,7 +386,7 @@ class MobileSecurityScanner {
 
     async scanTarget(url, scanId, options = {}) {
         const { platform = 'android', content } = options;
-        
+
         const results = {
             scanId,
             targetUrl: url,
@@ -400,7 +400,7 @@ class MobileSecurityScanner {
 
         try {
             let scanContent = content;
-            
+
             if (!scanContent && url) {
                 try {
                     const response = await axios.get(url, {

@@ -4,7 +4,7 @@
  */
 
 const axios = require('axios');
-const { checkSSRF } = require('../utils/security');
+const { checkSSRF } = require('../../utils/security');
 
 class CloudSecurityScanner {
     constructor() {

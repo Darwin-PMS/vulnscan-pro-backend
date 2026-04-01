@@ -4,7 +4,7 @@
  */
 
 const axios = require('axios');
-const { checkSSRF, sanitizeInput } = require('../utils/security');
+const { checkSSRF, sanitizeInput } = require('../../utils/security');
 
 class GHDBScanner {
     constructor() {
