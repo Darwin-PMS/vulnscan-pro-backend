@@ -21,7 +21,7 @@ async function initializeDatabase() {
     console.log('Starting database initialization...');
     
     try {
-        const sqlPath = path.join(__dirname, 'sql_dump_2026_03_31.sql');
+        const sqlPath = path.join(__dirname, 'sql_dump_latest.sql');
         const sql = fs.readFileSync(sqlPath, 'utf8');
         
         const statements = sql

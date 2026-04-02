@@ -35,8 +35,8 @@ const getAdminStats = async () => {
         const [subsByTier] = await query(`
             SELECT st.name, COUNT(us.id) as count 
             FROM subscription_tiers st 
-            LEFT JOIN user_subscriptions us ON st.tier_id = us.tier_id AND us.status = 'active'
-            GROUP BY st.tier_id, st.name
+            LEFT JOIN user_subscriptions us ON st.tier = us.tier_id AND us.status = 'active'
+            GROUP BY st.tier, st.name
         `);
 
         const [recentUsers] = await query(`
@@ -64,7 +64,7 @@ const getAdminStats = async () => {
                     ELSE st.price_yearly / 12 
                 END) as revenue
             FROM user_subscriptions us
-            JOIN subscription_tiers st ON us.tier_id = st.tier_id
+            JOIN subscription_tiers st ON us.tier_id = st.tier
             WHERE us.status = 'active' AND us.tier_id != 'free'
             AND start_date >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
             GROUP BY YEAR(start_date), MONTH(start_date)

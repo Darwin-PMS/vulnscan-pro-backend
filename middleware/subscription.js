@@ -19,15 +19,15 @@ const requireFeature = (feature) => {
             }
 
             const [subscription] = await query(
-                `SELECT us.*, st.features 
+                `SELECT us.*, st.tier, st.features 
                  FROM user_subscriptions us
-                 JOIN subscription_tiers st ON us.tier_id = st.tier_id
+                 JOIN subscription_tiers st ON us.tier_id = st.tier
                  WHERE us.user_id = ? AND us.status IN ('active', 'trial')
                  ORDER BY us.created_at DESC LIMIT 1`,
                 [userId]
             );
 
-            const tierId = subscription?.tier_id || 'free';
+            const tierId = subscription?.tier || 'free';
             const features = subscription?.features
                 ? (typeof subscription.features === 'string' ? JSON.parse(subscription.features) : subscription.features)
                 : SUBSCRIPTION_FEATURES.free;
@@ -78,9 +78,9 @@ const checkScanLimit = async (req, res, next) => {
         }
 
         const [subscription] = await query(
-            `SELECT us.scans_used_this_month, st.scan_limit_monthly, st.concurrent_scans
+            `SELECT us.scans_used_this_month, us.tier_id, st.scan_limit, st.concurrent_scans
              FROM user_subscriptions us
-             JOIN subscription_tiers st ON us.tier_id = st.tier_id
+             JOIN subscription_tiers st ON us.tier_id = st.tier
              WHERE us.user_id = ? AND us.status IN ('active', 'trial')
              ORDER BY us.created_at DESC LIMIT 1`,
             [userId]
@@ -89,7 +89,7 @@ const checkScanLimit = async (req, res, next) => {
         const tierId = subscription?.tier_id || 'free';
         const limits = SUBSCRIPTION_LIMITS[tierId] || SUBSCRIPTION_LIMITS.free;
         const used = subscription?.scans_used_this_month || 0;
-        const limit = limits.scan_limit_monthly;
+        const limit = limits.scan_limit;
 
         if (limit !== -1 && used >= limit) {
             return res.status(403).json({

@@ -1,0 +1,546 @@
+{
+  "info": {
+    "name": "VulnScan Pro API",
+    "description": "API Collection for VulnScan Pro - Web & Mobile Security Scanner",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "2.0.0"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userEmail",
+      "value": "admin@vulnscan.pro",
+      "type": "string"
+    },
+    {
+      "key": "userPassword",
+      "value": "Password@123",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{authToken}}"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Health & Status",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health",
+            "description": "Check API health status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/register",
+            "description": "Register a new user",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"newuser\",\n  \"email\": \"newuser@example.com\",\n  \"password\": \"Password@123\",\n  \"firstName\": \"New\",\n  \"lastName\": \"User\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "description": "Login and get auth token",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/auth/me",
+            "description": "Get current authenticated user"
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/refresh",
+            "description": "Refresh authentication token"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/logout",
+            "description": "Logout and invalidate token"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Scans",
+      "item": [
+        {
+          "name": "Start New Scan",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/scans",
+            "description": "Start a new vulnerability scan",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"targetUrl\": \"https://example.com\",\n  \"scanType\": \"full\",\n  \"scanOptions\": {\n    \"owasp\": true,\n    \"ghdb\": true,\n    \"api\": false\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Scans",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/scans?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["scans"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            },
+            "description": "Get all scans for current user"
+          }
+        },
+        {
+          "name": "Get Scan Status",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/scans/:scanId/status",
+            "description": "Get scan progress/status"
+          }
+        },
+        {
+          "name": "Get Scan Results",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/scans/:scanId/results",
+            "description": "Get scan results with vulnerabilities"
+          }
+        },
+        {
+          "name": "Delete Scan",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/scans/:scanId",
+            "description": "Delete a scan"
+          }
+        },
+        {
+          "name": "Get Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/scans/dashboard",
+            "description": "Get dashboard statistics"
+          }
+        },
+        {
+          "name": "Get User Stats",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/scans/user-stats",
+            "description": "Get user statistics"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dork Patterns",
+      "item": [
+        {
+          "name": "Get All Dorks",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/dorks?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["dorks"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "description": "Get all GHDB dork patterns"
+          }
+        },
+        {
+          "name": "Get Dork by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/dorks/:ghdbId",
+            "description": "Get specific dork pattern"
+          }
+        },
+        {
+          "name": "Get Dork Categories",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/dorks/categories",
+            "description": "Get all dork categories"
+          }
+        },
+        {
+          "name": "Get Dorks by Category",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/dorks/category/:category",
+            "description": "Get dorks by category name"
+          }
+        },
+        {
+          "name": "Run GHDB Scan",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/dorks/scan",
+            "description": "Run GHDB pattern scan",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"targetUrl\": \"https://example.com\",\n  \"categories\": [\"Sensitive Files\", \"Injection\"]\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Scan Modules",
+      "item": [
+        {
+          "name": "Get All Modules",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/scan-modules",
+            "description": "Get all available scan modules"
+          }
+        },
+        {
+          "name": "Get Module Details",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/scan-modules/:moduleName",
+            "description": "Get specific scan module details"
+          }
+        },
+        {
+          "name": "Run Module Scan",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/scan-modules/:moduleName/scan",
+            "description": "Run specific module scan",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"targetUrl\": \"https://example.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get OWASP Categories",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/scan-modules/owasp/categories",
+            "description": "Get OWASP Top 10 categories"
+          }
+        },
+        {
+          "name": "Get API Categories",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/scan-modules/api/categories",
+            "description": "Get API security scan categories"
+          }
+        },
+        {
+          "name": "Get Mobile Categories",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/scan-modules/mobile/categories",
+            "description": "Get mobile security categories"
+          }
+        },
+        {
+          "name": "Run Multi-Scan",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/scan-modules/multi-scan",
+            "description": "Run multiple scan modules",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"targetUrl\": \"https://example.com\",\n  \"modules\": [\"owasp\", \"ghdb\", \"api\"]\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI Assistant",
+      "item": [
+        {
+          "name": "Send Message to AI",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/ai/assistant",
+            "description": "Chat with AI security assistant",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"How to fix SQL injection vulnerability?\",\n  \"context\": {\n    \"vulnerability\": \"SQL Injection\",\n    \"location\": \"login.php?id=\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Get AI Chat History",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/ai/chat-history",
+            "description": "Get AI assistant chat history"
+          }
+        },
+        {
+          "name": "Clear AI Chat History",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/ai/chat-history",
+            "description": "Clear AI chat history"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Subscriptions",
+      "item": [
+        {
+          "name": "Get Subscription Tiers",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/subscriptions/tiers",
+            "description": "Get all subscription tiers"
+          }
+        },
+        {
+          "name": "Get Current Subscription",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/subscriptions/current",
+            "description": "Get current user's subscription"
+          }
+        },
+        {
+          "name": "Upgrade Subscription",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/subscriptions/upgrade",
+            "description": "Upgrade subscription tier",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tier\": \"pro\",\n  \"billingCycle\": \"monthly\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Cancel Subscription",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/subscriptions/cancel",
+            "description": "Cancel current subscription"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mobile Security",
+      "item": [
+        {
+          "name": "Scan Mobile App (APK/IPA)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/mobile/scan",
+            "description": "Scan mobile application",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": "" },
+                { "key": "platform", "value": "android", "type": "text" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Mobile Vulnerabilities",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/mobile/vulnerabilities",
+            "description": "Get mobile app vulnerabilities"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/admin/users",
+            "description": "Get all users (admin only)"
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/admin/users/:userId",
+            "description": "Get specific user details"
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/admin/users/:userId",
+            "description": "Update user details",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"user\",\n  \"subscription_tier\": \"pro\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/admin/users/:userId",
+            "description": "Delete a user"
+          }
+        },
+        {
+          "name": "Get System Stats",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/admin/stats",
+            "description": "Get system-wide statistics"
+          }
+        },
+        {
+          "name": "Get Audit Logs",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/admin/audit-logs",
+            "description": "Get system audit logs"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Enterprise",
+      "item": [
+        {
+          "name": "Get NIST Compliance",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/enterprise/nist-compliance",
+            "description": "Get NIST CSF compliance report"
+          }
+        },
+        {
+          "name": "Get Risk Register",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/enterprise/risk-register",
+            "description": "Get enterprise risk register"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Logs (Admin)",
+      "item": [
+        {
+          "name": "Get Log Stats",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/logs/stats",
+            "description": "Get log file statistics"
+          }
+        },
+        {
+          "name": "Get Request Logs",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/logs/requests",
+            "description": "Get API request logs"
+          }
+        },
+        {
+          "name": "Get Error Logs",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/logs/errors",
+            "description": "Get error logs"
+          }
+        },
+        {
+          "name": "Get Audit Logs",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/logs/audit",
+            "description": "Get audit logs"
+          }
+        },
+        {
+          "name": "Clear Logs",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/logs/clear",
+            "description": "Clear log files",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"errors\"\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

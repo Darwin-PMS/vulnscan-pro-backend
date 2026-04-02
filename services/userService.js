@@ -74,7 +74,7 @@ const userService = {
                     st.name as tier_name, 
                     us.status as sub_status
                 FROM user_subscriptions us
-                JOIN subscription_tiers st ON us.tier_id = st.tier_id
+                JOIN subscription_tiers st ON us.tier_id = st.tier
                 WHERE us.status IN ('active', 'trial')
             ) sub_info ON u.id = sub_info.user_id
             WHERE ${whereClause} 
@@ -138,7 +138,7 @@ const userService = {
         const [subscription] = await query(`
             SELECT us.*, st.name as tier_name, st.features
             FROM user_subscriptions us
-            JOIN subscription_tiers st ON us.tier_id = st.tier_id
+            JOIN subscription_tiers st ON us.tier_id = st.tier
             WHERE us.user_id = ? AND us.status IN ('active', 'trial')
         `, [userIdNum]);
 

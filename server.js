@@ -3,11 +3,13 @@ const cors = require('cors');
 const helmet = require('helmet');
 const dotenv = require('dotenv');
 const { v4: uuidv4 } = require('uuid');
-const { initializeDatabase } = require('./database/db');
-const { rateLimiter, adminRateLimiter } = require('./middleware/rateLimiter');
-const scanner = require('./services/vulnerabilityScanner');
 
 dotenv.config();
+
+const { initializeDatabase } = require('./database/db');
+const { rateLimiter, adminRateLimiter } = require('./middleware/rateLimiter');
+const { requestLogger, errorLogger } = require('./middleware/apiLogger');
+const scanner = require('./services/vulnerabilityScanner');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -81,6 +83,8 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use(requestLogger);
+
 const scanRoutes = require('./routes/scanRoutes');
 const dorkRoutes = require('./routes/dorkRoutes');
 const aiRoutes = require('./routes/aiRoutes');
@@ -90,6 +94,7 @@ const subscriptionRoutes = require('./routes/subscriptionRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const enterpriseRoutes = require('./routes/enterpriseRoutes');
 const scanModulesRoutes = require('./routes/scanModules');
+const logRoutes = require('./routes/logRoutes');
 
 app.use('/api/scans', scanRoutes);
 app.use('/api/dorks', dorkRoutes);
@@ -100,6 +105,7 @@ app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/admin', adminRateLimiter, adminRoutes);
 app.use('/api/enterprise', enterpriseRoutes);
 app.use('/api/scan-modules', scanModulesRoutes);
+app.use('/api/logs', logRoutes);
 
 app.get('/api/health', (req, res) => {
     res.json({
@@ -111,6 +117,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use((err, req, res, next) => {
+    errorLogger(err, req, res, next);
     const errorId = req.id;
     console.error(`[${errorId}] Error:`, err.message);
 
@@ -158,6 +165,10 @@ const startServer = async () => {
   CORS Origins: ${allowedOrigins.join(', ')}
 ========================================
         `);
+
+        app.listen(PORT, () => {
+            console.log(`🚀 Server running on http://localhost:${PORT}`);
+        });
     } catch (error) {
         console.error('Failed to start server:', error.message);
         process.exit(1);

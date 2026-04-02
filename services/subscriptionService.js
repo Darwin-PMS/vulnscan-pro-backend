@@ -26,7 +26,7 @@ const subscriptionService = {
                 st.price_yearly
             FROM user_subscriptions us
             JOIN users u ON us.user_id = u.id
-            JOIN subscription_tiers st ON us.tier_id = st.tier_id
+            JOIN subscription_tiers st ON us.tier_id = st.tier
             WHERE ${whereClause}
             ORDER BY us.created_at DESC
             LIMIT ? OFFSET ?
@@ -80,7 +80,7 @@ const subscriptionService = {
             SELECT us.*, u.username, st.name as tier_name
             FROM user_subscriptions us
             JOIN users u ON us.user_id = u.id
-            JOIN subscription_tiers st ON us.tier_id = st.tier_id
+            JOIN subscription_tiers st ON us.tier_id = st.tier
             WHERE us.id = ?
         `, [subId]);
 
@@ -100,15 +100,15 @@ const subscriptionService = {
         }));
 
         const [stats] = await query(`
-            SELECT st.tier_id, COUNT(us.id) as subscriber_count
+            SELECT st.tier, COUNT(us.id) as subscriber_count
             FROM subscription_tiers st
-            LEFT JOIN user_subscriptions us ON st.tier_id = us.tier_id AND us.status IN ('active', 'trial')
-            GROUP BY st.tier_id
+            LEFT JOIN user_subscriptions us ON st.tier = us.tier_id AND us.status IN ('active', 'trial')
+            GROUP BY st.tier
         `);
 
         return formattedTiers.map(tier => ({
             ...tier,
-            subscriberCount: stats.find(s => s.tier_id === tier.tier_id)?.subscriber_count || 0
+            subscriberCount: stats.find(s => s.tier === tier.tier)?.subscriber_count || 0
         }));
     },
 
@@ -122,7 +122,7 @@ const subscriptionService = {
         if (description !== undefined) { updateFields.push('description = ?'); params.push(description); }
         if (priceMonthly !== undefined) { updateFields.push('price_monthly = ?'); params.push(priceMonthly); }
         if (priceYearly !== undefined) { updateFields.push('price_yearly = ?'); params.push(priceYearly); }
-        if (scanLimit !== undefined) { updateFields.push('scan_limit_monthly = ?'); params.push(scanLimit); }
+        if (scanLimit !== undefined) { updateFields.push('scan_limit = ?'); params.push(scanLimit); }
         if (concurrentScans !== undefined) { updateFields.push('concurrent_scans = ?'); params.push(concurrentScans); }
         if (features !== undefined) { updateFields.push('features = ?'); params.push(JSON.stringify(features)); }
         if (isActive !== undefined) { updateFields.push('is_active = ?'); params.push(isActive); }

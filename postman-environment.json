@@ -1,0 +1,71 @@
+{
+  "id": "vulnscan-pro-environment",
+  "name": "VulnScan Pro - Development",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "userEmail",
+      "value": "admin@vulnscan.pro",
+      "type": "default",
+      "enabled": true,
+      "description": "Admin user email for login"
+    },
+    {
+      "key": "userPassword",
+      "value": "Password@123",
+      "type": "secret",
+      "enabled": true,
+      "description": "User password"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "default",
+      "enabled": true,
+      "description": "JWT token from login response"
+    },
+    {
+      "key": "scanId",
+      "value": "",
+      "type": "default",
+      "enabled": true,
+      "description": "Scan ID from scan response"
+    },
+    {
+      "key": "targetUrl",
+      "value": "https://example.com",
+      "type": "default",
+      "enabled": true,
+      "description": "Target URL for scanning"
+    },
+    {
+      "key": "ghdbId",
+      "value": "DORK-001",
+      "type": "default",
+      "enabled": true,
+      "description": "GHDB Dork ID"
+    },
+    {
+      "key": "moduleName",
+      "value": "owasp",
+      "type": "default",
+      "enabled": true,
+      "description": "Scan module name"
+    },
+    {
+      "key": "userId",
+      "value": "1",
+      "type": "default",
+      "enabled": true,
+      "description": "User ID"
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2026-04-02T00:00:00.000Z",
+  "_postman_exported_using": "Postman/10.x"
+}
