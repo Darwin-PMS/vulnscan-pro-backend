@@ -146,7 +146,8 @@ const startServer = async () => {
         await initializeDatabase();
         await scanner.initializeDorkPatterns();
 
-        console.log(`
+        const server = app.listen(PORT, () => {
+            console.log(`
 ========================================
   VulnScan Pro - Security Scanner API
   Environment: ${NODE_ENV}
@@ -154,10 +155,20 @@ const startServer = async () => {
   CORS Origins: ${allowedOrigins.join(', ')}
 ========================================
         `);
+        });
+
+        server.on('error', (error) => {
+            console.error('Failed to start server:', error.message);
+            process.exit(1);
+        });
     } catch (error) {
         console.error('Failed to start server:', error.message);
         process.exit(1);
     }
 };
 
-startServer();
+if (require.main === module) {
+    startServer();
+}
+
+module.exports = app;
